@@ -10,6 +10,26 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: courseplatform-api
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/courses
+      DB_USER: ${POSTGRES_USER:-app}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-app_dev_only}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      JAVA_TOOL_OPTIONS: -Duser.timezone=Asia/Kolkata
+    ports:
+      - "8081:8080"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:

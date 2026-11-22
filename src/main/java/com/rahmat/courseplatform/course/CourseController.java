@@ -52,8 +52,11 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CourseResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(courseService.getById(id));
+    public ResponseEntity<CourseResponse> getById(
+            @PathVariable Long id,
+            JwtAuthenticationToken auth) {
+
+        return ResponseEntity.ok(courseService.getById(id, auth));
     }
 
     @GetMapping

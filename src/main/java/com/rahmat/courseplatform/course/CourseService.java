@@ -69,12 +69,21 @@ public class CourseService {
         return courseMapper.toResponse(course);
     }
 
-    @Transactional(readOnly = true)
-    public CourseResponse getById(Long id) {
-        Course course = courseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
-        return courseMapper.toResponse(course);
+   @Transactional(readOnly = true)
+public CourseResponse getById(Long id, JwtAuthenticationToken auth) {
+    Course course = getCourse(id);
+
+    User currentUser = getCurrentUser(auth);
+
+    boolean isAdmin = currentUser.getRole().name().equals("ADMIN");
+    boolean isOwner = course.getInstructor().getId().equals(currentUser.getId());
+
+    if (!course.isPublished() && !isAdmin && !isOwner) {
+        throw new ResourceNotFoundException("Course not found");
     }
+
+    return courseMapper.toResponse(course);
+}
 
     @Transactional(readOnly = true)
     public Page<CourseResponse> getPublishedCourses(Pageable pageable) {

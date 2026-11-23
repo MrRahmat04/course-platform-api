@@ -1,4 +1,3 @@
-
 package com.rahmat.courseplatform.course;
 
 import com.rahmat.courseplatform.course.dto.CourseRequest;
@@ -14,6 +13,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -73,12 +74,10 @@ public class CourseService {
     public CourseResponse getById(Long id, JwtAuthenticationToken auth) {
         Course course = getCourse(id);
 
-        // Published courses are publicly visible.
         if (course.isPublished()) {
             return courseMapper.toResponse(course);
         }
 
-        // Unpublished courses are visible only to their instructor or an admin.
         if (auth == null) {
             throw new ResourceNotFoundException("Course not found");
         }
@@ -99,6 +98,21 @@ public class CourseService {
     public Page<CourseResponse> getPublishedCourses(Pageable pageable) {
         return courseRepository.findByPublishedTrue(pageable)
                 .map(courseMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CourseResponse> getMyCourses(JwtAuthenticationToken auth) {
+        User currentUser = getCurrentUser(auth);
+
+        if (!currentUser.getRole().name().equals("INSTRUCTOR")
+                && !currentUser.getRole().name().equals("ADMIN")) {
+            throw new AccessDeniedException("Only instructors can view their courses");
+        }
+
+        return courseRepository.findByInstructor_Id(currentUser.getId())
+                .stream()
+                .map(courseMapper::toResponse)
+                .toList();
     }
 
     public void delete(Long id, JwtAuthenticationToken auth) {

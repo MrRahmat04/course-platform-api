@@ -1,4 +1,3 @@
-
 package com.rahmat.courseplatform.course;
 
 import com.rahmat.courseplatform.course.dto.CourseRequest;
@@ -14,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -53,6 +54,14 @@ public class CourseController {
             JwtAuthenticationToken auth) {
 
         return ResponseEntity.ok(courseService.publish(id, published, auth));
+    }
+
+    @GetMapping("/my")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<List<CourseResponse>> getMyCourses(
+            JwtAuthenticationToken auth) {
+
+        return ResponseEntity.ok(courseService.getMyCourses(auth));
     }
 
     @GetMapping("/{id}")

@@ -90,7 +90,8 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/v3/api-docs/**"
                 ).permitAll()
-
+               
+                .requestMatchers(HttpMethod.GET, "/api/courses/my").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/courses/**").permitAll()
 
                 .anyRequest().authenticated()

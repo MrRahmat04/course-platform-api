@@ -4,6 +4,7 @@ package com.rahmat.courseplatform.enrollment;
 import com.rahmat.courseplatform.enrollment.dto.EnrollmentRequest;
 import com.rahmat.courseplatform.enrollment.dto.EnrollmentResponse;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/enrollments")
+@SecurityRequirement(name = "bearerAuth")
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;

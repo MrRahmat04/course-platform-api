@@ -52,7 +52,18 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
+
+                // Public Swagger documentation
+                .requestMatchers(
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**"
+                ).permitAll()
+
+                // Public published course catalogue
                 .requestMatchers(HttpMethod.GET, "/api/courses").permitAll()
+
+                // All remaining endpoints require authentication
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 ->

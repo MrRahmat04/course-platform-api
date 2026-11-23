@@ -4,6 +4,7 @@ package com.rahmat.courseplatform.course;
 import com.rahmat.courseplatform.course.dto.CourseRequest;
 import com.rahmat.courseplatform.course.dto.CourseResponse;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ public class CourseController {
     }
 
     @PostMapping
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<CourseResponse> create(
             @Valid @RequestBody CourseRequest request,
             JwtAuthenticationToken auth) {
@@ -34,6 +36,7 @@ public class CourseController {
     }
 
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<CourseResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody CourseRequest request,
@@ -43,6 +46,7 @@ public class CourseController {
     }
 
     @PatchMapping("/{id}/publish")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<CourseResponse> publish(
             @PathVariable Long id,
             @RequestParam boolean published,
@@ -52,6 +56,7 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<CourseResponse> getById(
             @PathVariable Long id,
             JwtAuthenticationToken auth) {
@@ -67,6 +72,7 @@ public class CourseController {
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
             JwtAuthenticationToken auth) {

@@ -69,21 +69,31 @@ public class CourseService {
         return courseMapper.toResponse(course);
     }
 
-   @Transactional(readOnly = true)
-public CourseResponse getById(Long id, JwtAuthenticationToken auth) {
-    Course course = getCourse(id);
+    @Transactional(readOnly = true)
+    public CourseResponse getById(Long id, JwtAuthenticationToken auth) {
+        Course course = getCourse(id);
 
-    User currentUser = getCurrentUser(auth);
+        // Published courses are publicly visible.
+        if (course.isPublished()) {
+            return courseMapper.toResponse(course);
+        }
 
-    boolean isAdmin = currentUser.getRole().name().equals("ADMIN");
-    boolean isOwner = course.getInstructor().getId().equals(currentUser.getId());
+        // Unpublished courses are visible only to their instructor or an admin.
+        if (auth == null) {
+            throw new ResourceNotFoundException("Course not found");
+        }
 
-    if (!course.isPublished() && !isAdmin && !isOwner) {
-        throw new ResourceNotFoundException("Course not found");
+        User currentUser = getCurrentUser(auth);
+
+        boolean isAdmin = currentUser.getRole().name().equals("ADMIN");
+        boolean isOwner = course.getInstructor().getId().equals(currentUser.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new ResourceNotFoundException("Course not found");
+        }
+
+        return courseMapper.toResponse(course);
     }
-
-    return courseMapper.toResponse(course);
-}
 
     @Transactional(readOnly = true)
     public Page<CourseResponse> getPublishedCourses(Pageable pageable) {

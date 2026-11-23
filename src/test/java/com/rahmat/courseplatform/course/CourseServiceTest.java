@@ -125,13 +125,46 @@ class CourseServiceTest {
         );
 
         when(courseRepository.findById(100L)).thenReturn(Optional.of(course));
-        when(userRepository.findByEmail("student@test.com"))
-                .thenReturn(Optional.of(student));
         when(courseMapper.toResponse(course)).thenReturn(expected);
 
         CourseResponse result = courseService.getById(100L, auth);
 
         assertEquals(expected, result);
+    }
+
+    @Test
+    void visitorCanViewPublishedCourse() {
+        User instructor = createUser(1L, "instructor@test.com", Role.INSTRUCTOR);
+        Course course = createCourse(instructor, true);
+
+        CourseResponse expected = new CourseResponse(
+                100L, "Java Backend Course", "Test description",
+                1L, "Test User", 50, true, null
+        );
+
+        when(courseRepository.findById(100L)).thenReturn(Optional.of(course));
+        when(courseMapper.toResponse(course)).thenReturn(expected);
+
+        CourseResponse result = courseService.getById(100L, null);
+
+        assertEquals(expected, result);
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void visitorCannotViewUnpublishedCourse() {
+        User instructor = createUser(1L, "instructor@test.com", Role.INSTRUCTOR);
+        Course course = createCourse(instructor, false);
+
+        when(courseRepository.findById(100L)).thenReturn(Optional.of(course));
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> courseService.getById(100L, null)
+        );
+
+        verifyNoInteractions(userRepository);
+        verify(courseMapper, never()).toResponse(any());
     }
 
     @Test
